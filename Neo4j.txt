@@ -1,0 +1,224 @@
+MATCH(n:Person)
+WHERE n.name = 'Tom Hanks'
+RETURN n
+
+
+MATCH (m:Movie)<-[r:ACTED_IN]-(p:Person)
+WHERE m.title = 'Toy Story'
+RETURN m,r, p
+
+MATCH (m:Movie)<-[r:GENRE_IN]-(g:Genre)
+WHERE m.title = 'Toy Story'
+RETURN m,r, g
+
+MATCH (u:User)-[r:RATED]->(m:Movie)
+WHERE u.name = "Mr. Jason Love"
+RETURN u, r, m
+
+
+=========================
+Cypher Language
+=========================
+Node =()
+Relation = -[  ]-> Relationship and Direction
+Property = { 'prop': 'value'}
+
+
+(:Person{ name: 'Tom Hanks'})
+
+MATCH (p:Person{ name: 'Tom Hanks'})-[ACTED_IN]->(m:Movie{title : 'Cloud Atlas'})
+RETURN p,m
+
+MATCH (p:Person {name: "Kevin Bacon"})
+RETURN p.born
+
+
+MATCH (m:Movie)
+<-[:ACTED_IN]-
+(p:Person)
+RETURN m.title, p.name
+
+
+
+MATCH (m:Movie)<-[:DIRECTED]-(p:Person) RETURN p.name
+
+Another way - no need to specify the Label
+
+MATCH (m:Movie)<-[:DIRECTED]-(p) RETURN p.name
+
+MATCH(p:Person)-[:ACTED_IN]->(m:Movie)
+WHERE m.title = 'The Matrix'
+RETURN p.name
+
+MATCH (p:Person)-[:ACTED_IN]->(m:Movie)
+WHERE m.released = 2008 OR m.released = 2009
+RETURN p, m
+
+MATCH (p)-[:ACTED_IN]->(m)
+WHERE p:Person AND m:Movie AND m.title='The Matrix'
+RETURN p.name
+
+MATCH (p:Person)-[ACTED_IN]->(m:Movie)
+WHERE 2000 <= m.released <= 2003
+RETURN p.name, m.title, m.released
+
+MATCH (p:Person)-[ACTED_IN]->(m:Movie)
+WHERE p.name = 'Jack Nicholson' AND m.tagline IS NOT NULL
+RETURN m.title, m.tagline
+
+MATCH (p:Person)-[ACTED_IN]->(m:Movie)
+WHERE p.name = 'Jack Nicholson' AND m.tagline IS NULL
+RETURN m.title, m.tagline
+
+
+MATCH (p:Person)-[ACTED_IN]->(m:Movie)
+WHERE p.name STARTS WITH 'Michael'
+RETURN p.name
+
+MATCH(p:Personn)-[ACTED_IN]->(m:Movie)
+WHERE toLower(p.name) STARTS WITH 'michael'
+RETURN p.name
+
+MATCH (p:Person)-[:WROTE]->(m:Movie)
+WHERE NOT exists((p)-[:DIRECTED]->(m))
+RETURN p.name, m.title
+
+MATCH (p:Person)
+WHERE p.born in [1965, 1970, 1975]
+RETURN p.name, p.born
+
+MATCH (p:Person)-[r:ACTED_IN]->(m:Movie)
+WHERE 'Neo' in r.roles and m.title = 'The Matrix'
+RETURN p.name, r.roles
+
+MATCH (m:Movie)
+WHERE m.released IN [2000, 2002, 2004, 2006, 2008]
+RETURN m.title
+
+MATCH (m:Movie)
+WHERE m.released IN [2000, 2002, 2004, 2006, 2008]
+RETURN m.title
+
+MATCH (a:Person)
+WHERE a.born >= 1970 AND a.born < 1980
+RETURN a.name, a.born
+
+MATCH (a:Person)
+WHERE 1970 <= a.born < 1980
+RETURN a.name, a.born
+
+MATCH (a:Person)
+WHERE a.born IN [1970,1971,1972,1973,1974,1975,1976,1977,1978,1979]
+RETURN a.name, a.born
+
+
+MATCH (p:Person)-[:ACTED_IN]->(m:Movie)
+WHERE m.title='As Good as It Gets' AND p.born > 1960
+RETURN p.name
+
+=========================
+
+MERGE (p:Person{name:'Tom Hanks'})
+RETURN p
+
+MERGE(p:Person{name: 'Michael Caine'})
+
+MERGE(p:Person{name: 'Katie Holmes'})
+MERGE(m:Movie{title: 'The Dark Knight'})
+RETURN p,m
+
+MATCH (p:Person {name: 'Daniel Kaluuya'})
+RETURN p
+
+MATCH (p:Person {name: 'Michael Caine'})
+MATCH (m:Movie {title: 'The Dark Knight'})
+MERGE (p)-[:ACTED_IN]->(m)
+
+MATCH (p:Person {name: 'Michael Caine'})-[:ACTED_IN]-(m:Movie {title: 'The Dark Knight'})
+RETURN p, m
+
+MATCH (p:Person {name: 'Michael Caine'})<-[:ACTED_IN]-(m:Movie {title: 'The Dark Knight'})
+RETURN p, m
+
+MATCH (p:Person {name: 'Michael Caine'})<-[:ACTED_IN]-(m:Movie {title: 'The Dark Knight'})
+RETURN p, m
+
+MERGE (p:Person {name: 'Chadwick Boseman'})
+MERGE (m:Movie {title: 'Black Panther'})
+MERGE (p)-[:ACTED_IN]-(m)
+
+MATCH (p:Person {name: 'Chadwick Boseman'})-[:ACTED_IN]-(m:Movie {title: 'Black Panther'})
+RETURN p, m
+
+MERGE (p:Person {name: 'Emily Blunt'})-[:ACTED_IN]->(m:Movie {title: 'A Quiet Place'})
+RETURN p, m
+
+MATCH (p:Person {name: 'Daniel Kaluuya'})
+MERGE (m:Movie {title: 'Get Out'})
+MERGE(p)-[:ACTED_IN]->(m)
+
+MATCH (p:Person {name: 'Daniel Kaluuya'})
+MERGE (m:Movie {title: 'Get Out'})
+MERGE(p)-[:ACTED_IN]->(m)
+
+RETURN p,m
+
+MATCH (m:Movie {title: 'Get Out'})
+RETURN m.title, m.tagline, m.released
+
+MATCH (m:Movie {title: 'Get Out'})
+SET m.tagline = 'Gripping, scary, witty and timely!', m.released = '2017'
+RETURN m.title, m.tagline, m.released
+
+MERGE (m:Movie {title: 'Rocketman'})
+ON MATCH SET m.createdAt = datetime()
+ON MATCH SET m.updatedAt = datetime()
+SET m.tagline = "The Only Way to Tell His Story is to live His Fantasy.",
+    m.released = 2019
+RETURN m
+
+
+MATCH (p:Person {name: 'River Phoenix'})
+DELETE p
+
+MATCH (m:Movie {title: 'The Matrix'})
+MERGE (p:Person {name: 'Jane Doe'})
+MERGE (p)-[:ACTED_IN]->(m)
+RETURN p, m
+
+MATCH (p:Person {name: 'Jane Doe'})-[r:ACTED_IN]->(m:Movie {title: 'The Matrix'})
+DELETE r
+RETURN p, m
+
+MATCH (m:Movie {title: 'The Matrix'})
+MERGE (p:Person {name: 'Jane Doe'})
+MERGE (p)-[:ACTED_IN]->(m)
+RETURN p, m
+
+MATCH (p:Person {name: 'Jane Doe'})-[r:ACTED_IN]->(m:Movie {title: 'The Matrix'})
+DELETE r
+RETURN p, m
+
+MATCH (p:Person {name: 'Jane Doe'})
+MATCH (m:Movie {title: 'The Matrix'})
+MERGE (p)-[:ACTED_IN]->(m)
+RETURN p, m
+
+MATCH (p:Person {name: 'Jane Doe'})
+DELETE p
+
+
+MATCH (p:Person {name: 'Jane Doe'})
+DETACH DELETE p
+
+MATCH (e:Person {name: "Emil Eifrem"})-[]->(n)
+RETURN e, n
+
+================
+
+
+
+
+=========================
+
+=========================
